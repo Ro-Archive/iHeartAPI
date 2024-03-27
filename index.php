@@ -1,8 +1,6 @@
 <?php
 
-// API endpoint: api.php?name=
 if (isset($_GET['name'])) {
-    // Sanitize and store the provided name
     $keyword = urlencode($_GET['name']);
 
     // Constants
@@ -17,10 +15,8 @@ if (isset($_GET['name'])) {
         $url = "{$search_base}?keywords={$keyword}&bestMatch=True&queryStation=True&queryArtist=True&queryTrack=True&queryTalkShow=True&startIndex=0&maxRows=1&queryFeaturedStation=False&queryBundle=False&queryTalkTheme=False&amp_version=4.11.0";
         $res = file_get_contents($url);
 
-        // Treat the response as plain text
         $response_text = $res;
 
-        // Ignore specific sections and extract any type of digits
         $ignore_sections = ['</ns2:searchResponse>', '<ns2:searchResponse', '<duration>', '<bestMatch>', '<name>', '<description>', '<frequency>', '<band>', '<callLetters>', '<city>', '<state>', '<score>', '<newlogo>'];
         $filtered_text = $response_text;
         foreach ($ignore_sections as $section) {
@@ -42,7 +38,6 @@ if (isset($_GET['name'])) {
         $body = json_decode($res, true);
 
         if (isset($body['errors'])) {
-            // Handle errors as needed
             return null;
         }
 
@@ -54,7 +49,6 @@ if (isset($_GET['name'])) {
     {
         $stream_urls = [];
         foreach ($streams as $stream_type => $stream_url) {
-            // Replace \/ with //
             $stream_urls[] = [
                 'type' => $stream_type,
                 'url' => str_replace('\/', '//', $stream_url)
@@ -77,7 +71,6 @@ if (isset($_GET['name'])) {
         return $market_details;
     }
 
-    // Example usage with provided name parameter
     $digits_from_search = search($keyword);
 
     foreach ($digits_from_search as $digit) {
@@ -96,21 +89,19 @@ if (isset($_GET['name'])) {
                 ];
                 header('Content-Type: application/json');
                 echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-                exit; // Exit to prevent further execution
+                exit;
             }
         } catch (Exception $e) {
-            // Skip if the conversion to int fails
             $response = [
                 'success' => false,
                 'message' => 'Error: Unable to convert station ID to a number.'
             ];
             header('Content-Type: application/json');
             echo json_encode($response);
-            exit; // Exit to prevent further execution
+            exit; 
         }
     }
 
-    // If no valid station information is found
     $response = [
         'success' => false,
         'message' => 'Error: No valid station information found.'
@@ -118,7 +109,6 @@ if (isset($_GET['name'])) {
     header('Content-Type: application/json');
     echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 } else {
-    // If name parameter is not provided
     $response = [
         'success' => false,
         'message' => 'Error: Name parameter is required.'
